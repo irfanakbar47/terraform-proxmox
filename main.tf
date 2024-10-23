@@ -24,7 +24,8 @@ resource "proxmox_vm_qemu" "test_vm" {
   memory      = 1024
   disk {
     size = "10G"
-    storage = "ceph-vm"
+    storage = "local-lvm"
+    bus = "SCSI"
   }
   network {
     model = "virtio"
