@@ -7,5 +7,5 @@ variable "pm_api_url" {
 variable "pm_api_token_id" {
   description = "Proxmox API Token ID"
   type        = string
-  default = "terraform@pam!terrafor_token"
+  default = "irfan@pve!terraform"
 }
