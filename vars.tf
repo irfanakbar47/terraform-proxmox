@@ -7,5 +7,15 @@ variable "pm_api_url" {
 variable "pm_api_token_id" {
   description = "Proxmox API Token ID"
   type        = string
-  default = "irfan@pve!terraform"
+}
+
+variable "pm_api_token_secret" {
+  description = "Proxmox API Token Secret"
+  type        = string
+}
+
+variable "pm_tls_insecure" {
+  description = "Skip TLS verification"
+  type        = bool
+  default     = true
 }
