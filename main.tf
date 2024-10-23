@@ -34,3 +34,7 @@ resource "proxmox_vm_qemu" "test_vm" {
     tag    = 150                # VLAN ID 150
   }
 }
+
+variable "pm_api_url" {
+  type = string
+}
