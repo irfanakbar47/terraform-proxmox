@@ -16,7 +16,7 @@ terraform {
 # Data source to fetch information
 resource "proxmox_vm_qemu" "test_vm" {
   name        = "terraform-test-vm"
-  target_node = "pve" # Replace with your Proxmox node
+  target_node = "goc2b1p1" # Your Proxmox node
   vmid        = 9210
   clone       = "121"
  # os_type     = "cloud-init"
@@ -28,7 +28,7 @@ resource "proxmox_vm_qemu" "test_vm" {
   }
   network {
     model = "virtio"
-    bridge = "vmbr0"            # Use your network bridge name
+    bridge = "vmbr0"            # your network bridge name
     tag    = 150                # VLAN ID 150
   }
 }
