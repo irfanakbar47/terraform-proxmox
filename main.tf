@@ -35,6 +35,3 @@ resource "proxmox_vm_qemu" "test_vm" {
   }
 }
 
-variable "pm_api_url" {
-  type = string
-}
