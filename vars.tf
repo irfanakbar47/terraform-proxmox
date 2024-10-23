@@ -1,3 +1,1 @@
-variable "pm_api_url" {
-  type = string
-}
+variable "pm_api_url" {}
