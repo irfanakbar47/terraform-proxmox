@@ -22,10 +22,11 @@ resource "proxmox_vm_qemu" "test_vm" {
  # os_type     = "cloud-init"
   cores       = 2
   memory      = 1024
+  scsihw = "virtio-scsi-pci"
   disk {
     size = "10G"
     storage = "local-lvm"
-    bus = "SCSI"
+    type = "SCSI"
   }
   network {
     model = "virtio"
