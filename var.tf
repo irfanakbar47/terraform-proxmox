@@ -10,6 +10,3 @@ variable "pm_api_token_secret" {
   type = string
 }
 
-variable "pm_tls_insecure" {
-  type = string
-}
