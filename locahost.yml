@@ -1,0 +1,20 @@
+- name: Initialize Docker Swarm on the leader and get join token
+  hosts: swarm_leader
+  become: yes
+  tasks:
+    - name: Initialize Docker Swarm
+      shell: docker swarm init --advertise-addr {{ ansible_host }}
+      register: swarm_init_result
+      ignore_errors: true
+
+    - name: Get worker join token and delegate to localhost
+      command: docker swarm join-token -q worker
+      when: swarm_init_result is defined and swarm_init_result.rc == 0
+      register: join_token
+      delegate_to: localhost
+      become: yes
+
+    - name: Set worker join token fact globally on localhost
+      set_fact:
+        global_worker_join_token: "{{ join_token.stdout }}"
+      delegate_to: localhost
