@@ -1,0 +1,41 @@
+---
+- name: Install Docker and set up Docker Swarm
+  hosts: web
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+    - name: Initialize Docker Swarm on the leader node
+      shell: |
+        docker swarm init --advertise-addr {{ ansible_host }}
+      when: inventory_hostname == groups['swarm_leader'][0]
+      register: swarm_init_result
+
+    - name: Get join token for worker nodes
+      shell: docker swarm join-token -q worker
+      when: inventory_hostname == groups['swarm_leader'][0]
+      register: join_token
+      changed_when: false
+
+    - name: Set join token fact on all hosts
+      set_fact:
+        worker_join_token: "{{ join_token.stdout }}"
+      when: inventory_hostname == groups['swarm_leader'][0]
+      delegate_to: "{{ item }}"
+      with_items: "{{ groups['web'] }}"
+
+    - name: Debug join token for all hosts
+      debug:
+        var: worker_join_token
+
+    - name: Join the swarm as a worker node
+      shell: |
+        docker swarm join --token {{ worker_join_token }} {{ hostvars[groups['swarm_leader'][0]].ansible_host }}:2377
+      when: inventory_hostname != groups['swarm_leader'][0]
