@@ -1,0 +1,20 @@
+---
+- name: Remove Portainer from Docker Swarm
+  hosts: swarm_leader
+  tasks:
+    - name: Remove Portainer service
+      docker_swarm_service:
+        name: portainer
+        state: absent
+
+    - name: Remove Portainer network
+      docker_network:
+        name: portainer_network
+        state: absent
+      ignore_errors: yes  # Ignore errors if the network does not exist
+
+    - name: Remove Portainer volumes
+      docker_volume:
+        name: portainer_data  # Replace with your actual volume name
+        state: absent
+      ignore_errors: yes  # Ignore errors if the volume does not exist
