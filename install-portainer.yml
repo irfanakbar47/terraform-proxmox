@@ -1,0 +1,37 @@
+---
+- name: Install Portainer on Docker Swarm
+  hosts: swarm_leader
+  become: true
+  tasks:
+    - name: Ensure Docker is installed
+      apt:
+        name: docker.io
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Create an overlay network for Portainer
+      docker_network:
+        name: portainer_network
+        driver: overlay
+
+    - name: Deploy Portainer service
+      docker_swarm_service:
+        name: portainer
+        image: portainer/portainer-ce:latest
+        args: -p 9000
+        mode: replicated
+        replicas: 1
+        networks:
+          - portainer_network
+        endpoint_mode: vip
+        restart_policy:
+          condition: any
+
+    - name: Wait for Portainer to be ready
+      uri:
+        url: http://localhost:9000
+        status_code: 200
+      register: portainer_health
+      until: portainer_health is succeeded
+      retries: 10
+      delay: 5
