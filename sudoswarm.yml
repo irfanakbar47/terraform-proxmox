@@ -1,0 +1,44 @@
+---
+- name: Install Docker on all nodes
+  hosts: web
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+
+- name: Initialize Docker Swarm on the leader and get join token
+  hosts: swarm_leader
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Initialize Docker Swarm
+      shell: docker swarm init --advertise-addr {{ ansible_host }}
+      register: swarm_init_result
+      ignore_errors: true
+
+    - name: Get worker join token and delegate to localhost
+      shell: docker swarm join-token -q worker
+      when: swarm_init_result is defined and swarm_init_result.rc == 0
+      register: join_token
+      delegate_to: localhost
+      become: yes
+
+    - name: Set worker join token fact globally on localhost
+      set_fact:
+        global_worker_join_token: "{{ join_token.stdout }}"
+      delegate_to: localhost
+
+- name: Join worker nodes to the swarm
+  hosts: swarm_workers
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Join the swarm as a worker node
+      shell: docker swarm join --token {{ hostvars['localhost'].global_worker_join_token }} {{ hostvars['swarm_leader'][0].ansible_host }}:2377
+      when: hostvars['localhost'].global_worker_join_token is defined
